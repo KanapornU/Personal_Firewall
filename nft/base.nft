@@ -1,0 +1,39 @@
+# core rules: default deny inbound, stateful, logging
+flush ruleset
+
+table inet filter {
+  set blocklist {
+    type ipv4_addr
+    flags interval
+  }
+
+  # นโยบาย allow ของผู้ใช้จะถูกเติมลง chain นี้ (ถูกเรียกก่อน log+drop)
+  chain policy_in {
+    # เติมจาก nft/policy.nft
+  }
+
+  chain input {
+    type filter hook input priority 0; policy drop;
+
+    # พื้นฐาน
+    ct state established,related accept
+    iif lo accept
+
+    # blocklist เร็ว
+    ip saddr @blocklist drop
+
+    # บริการระบบพื้นฐาน
+    icmp type { echo-request, echo-reply, destination-unreachable, time-exceeded } accept
+    udp dport 67-68 accept  # DHCP client
+
+    # เรียกนโยบายผู้ใช้ (มาก่อน log+drop)
+    jump policy_in
+
+    # เหลือ: log แล้วค่อย drop
+    log prefix "NFT:INPUT:DROP " group 1
+    drop
+  }
+
+  chain forward { type filter hook forward priority 0; policy drop; }
+  chain output  { type filter hook output  priority 0; policy accept; }
+}
