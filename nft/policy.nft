@@ -1,0 +1,3 @@
+# นโยบายอนุญาตของคุณ (ทำงานก่อน log+drop เสมอ)
+add rule inet filter policy_in ip saddr 192.168.1.0/24 tcp dport 22 ct state new,established accept
+add rule inet filter policy_in udp dport 51820 accept
