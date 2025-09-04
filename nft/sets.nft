@@ -1,0 +1,2 @@
+# Initialize dynamic sets
+add element inet filter blocklist { 203.0.113.66, 198.51.100.23 }
