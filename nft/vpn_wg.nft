@@ -1,0 +1,8 @@
+# WireGuard kill-switch: only allow egress via wg0
+add table inet wg
+add chain inet wg output { type route hook output priority 0; policy drop }
+add rule inet wg output oifname "wg0" accept
+
+# Always allow WG UDP control in input (adjust as needed)
+add chain inet wg input { type filter hook input priority 0; policy accept }
+add rule inet wg input udp dport 51820 accept
